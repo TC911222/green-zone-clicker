@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Light Reaction Game</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+        background-color: #f0f0f0;
+      }
+
+      #light {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        margin: 30px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+        background-color: gray;
+        border: 5px solid #333;
+      }
+
+      .red {
+        background-color: #ff4444 !important;
+      }
+
+      .green {
+        background-color: #44ff44 !important;
+      }
+
+      button {
+        padding: 15px 30px;
+        font-size: 18px;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #startBtn {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      #goBtn {
+        background-color: #ff9800;
+        color: white;
+      }
+
+      #goBtn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+
+      #result {
+        margin: 20px;
+        font-size: 20px;
+        font-weight: bold;
+        min-height: 30px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Traffic Light Reaction Game 🚦</h1>
+    <p>Wait for the GREEN light, then click GO as fast as you can!</p>
+
+    <div id="light">Click Start to begin</div>
+
+    <button id="startBtn" onclick="startGame()">Start Game</button>
+    <button id="goBtn" onclick="react()" disabled>GO!</button>
+
+    <div id="result"></div>
+
+    <script>
+      let gameStarted = false;
+      let redLightTime = 0;
+      let greenLightTime = 0;
+      let gameTimeout;
+
+      function startGame() {
+        // Reset everything
+        gameStarted = true;
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("startBtn").disabled = true;
+        document.getElementById("goBtn").disabled = false;
+
+        // Show RED light
+        const light = document.getElementById("light");
+        light.innerHTML = "RED LIGHT 🔴<br>WAIT...";
+        light.className = "red";
+
+        // Record when red light started
+        redLightTime = new Date().getTime();
+
+        // Generate random time between 2-5 seconds
+        const randomWait = Math.floor(Math.random() * 3000) + 2000;
+
+        // After random time, turn green
+        gameTimeout = setTimeout(function () {
+          light.innerHTML = "GREEN LIGHT 🟢<br>GO NOW!";
+          light.className = "green";
+          greenLightTime = new Date().getTime();
+        }, randomWait);
+      }
+
+      function react() {
+        if (!gameStarted) {
+          return;
+        }
+
+        const currentTime = new Date().getTime();
+        const light = document.getElementById("light");
+
+        // Check if they clicked during red light
+        if (light.className === "red") {
+          document.getElementById("result").innerHTML =
+            "❌ TOO EARLY! You ran a red light! Try again.";
+          document.getElementById("result").style.color = "red";
+          resetGame();
+          return;
+        }
+
+        // Check if they clicked during green light
+        if (light.className === "green") {
+          const reactionTime = currentTime - greenLightTime;
+          const seconds = (reactionTime / 1000).toFixed(2);
+
+          let message = "";
+          if (seconds < 0.5) {
+            message = `🚀 INCREDIBLE! ${seconds} seconds - Lightning fast!`;
+          } else if (seconds < 1) {
+            message = `⚡ EXCELLENT! ${seconds} seconds - Super quick!`;
+          } else if (seconds < 2) {
+            message = `👍 GOOD! ${seconds} seconds - Nice reaction!`;
+          } else {
+            message = `😅 SLOW! ${seconds} seconds - Try to be faster!`;
+          }
+
+          document.getElementById("result").innerHTML = message;
+          document.getElementById("result").style.color = "green";
+          resetGame();
+        }
+      }
+
+      function resetGame() {
+        gameStarted = false;
+        clearTimeout(gameTimeout);
+
+        // Reset light
+        const light = document.getElementById("light");
+        light.innerHTML = "Click Start to begin";
+        light.className = "";
+
+        // Reset buttons
+        document.getElementById("startBtn").disabled = false;
+        document.getElementById("goBtn").disabled = true;
+      }
+    </script>
+  </body>
+</html>
